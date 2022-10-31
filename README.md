@@ -7,8 +7,21 @@ We collected posts, comments and users' information from CMV subreddit. We prese
  2. Comments: arguments under posts
  3. Users: Information of users who wrote a comment or post
 
-For information retrieval tasks, we use posts as queries and comments as corpus. We have splitted queries and documents to train/dev/test sets and built qrels files. You can download it [here](https://drive.google.com/drive/folders/1EHHNFQpERm4TNrHIce5yVxuiKHajxB44?usp=sharing).
+The code for downloading data from reddit can be found in `./Crawler/` directory. You need to enter `client_id` and `client_secret` that can be found in you reddit account and start using the code for downloading posts, comments and users from CMV for your specified date. 
+
+For information retrieval tasks, we use posts as queries and comments as corpus. We have downloaded all firs-level comments for each post along with other information. For each part of the dataset, we collected the following information:
+| Data        | Fields           | 
+| ------------- |:-------------:|
+| Posts      | Post_id, title, text, user_id, score, time, post_flair |
+| Comments      | comments_id, text, post_id, #delta, convincingness_level|
+| Users |user_id, comment_karma, link_karma, registration_date |
+
+Delta scoring system is a system that CMV subreddit use to acknowledge change of opinions. When a comment convinces someone to change at least one aspect of their opinion, a delta should be awarded by the user to the comment. We have leveraged these deltas and mapped them into 5 levels. the conv_level field in the comments dataset shows these levels of convincingness. 
+These information can be used for further research on convincingness and information retrieval. 
+
+We have splitted queries and documents to train/dev/test sets and built qrels files. You can download the dataset [here](https://drive.google.com/drive/folders/1EHHNFQpERm4TNrHIce5yVxuiKHajxB44?usp=sharing).
 ## Usage
+We have trained our models on both relevance and convincingness notions. Using dense retrievers, we trained base models such that first, they learn how to retrieve relevant documents (all the first-level documents of a post are considered relevant). Second, they learn how to retrieve convincing documents (comments with more deltas are considered more convincing) and third, we use models trained on ms-marco (relevance notion) and train them on our dataset for convincingness notion. 
 To train models on each concepts, use the following code with the name of the base model you want to train from Huggingface models:
 
 **Convincingness:**
